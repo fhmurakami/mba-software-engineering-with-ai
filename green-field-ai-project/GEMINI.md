@@ -1,71 +1,57 @@
 # GEMINI.md - StreamTube Project Context
 
 ## Project Overview
-StreamTube is a video sharing platform built with a modern stack. This repository is a monorepo containing the backend service, with plans for a Next.js frontend.
 
-- **Main Technologies:**
-    - **Backend:** NestJS (Node.js framework)
-    - **Database:** PostgreSQL with Prisma ORM
-    - **Architecture:** Modular architecture in NestJS, Monorepo structure.
-    - **Authentication:** JWT-based with email confirmation.
-    - **Services:** Mailer for transactional emails (confirmation, password reset), Docker for development environment.
+StreamTube – a video sharing platform (YouTube-like). Users can upload, manage, and publish videos. Anonymous users can watch freely; social features (comments, subscriptions, likes) require authentication.
 
-## Directory Structure
-- `docs/`: Project documentation, including the roadmap (`project-plan.md`) and architecture diagrams.
-- `nestjs-project/`: The backend application.
-    - `src/modules/`: Domain-specific modules (auth, users, prisma, mail, channels).
-    - `prisma/`: Database schema and migrations.
-    - `test/`: End-to-end tests.
+More info in the project plan: [docs/project-plan.md](docs/project-plan.md)
 
-## Development Workflow
+## Repository Structure
 
-### Prerequisites
-- Node.js & npm
-- Docker & Docker Compose (for database and local development)
+This is a monorepo with two main areas:
 
-### Building and Running
-All commands should be run from within the `nestjs-project/` directory:
+- `nestjs-project/` – Backend API (NestJS 11, TypeScript, Express). Contains modules for users, channels, videos, comments, etc.
+- `docs/`: Project documentation, architecture diagrams, and planning.
+- `nextjs-project/` (Next.js) – not yet initialized.
 
-- **Setup Environment:**
-  ```bash
-  npm install
-  # Start the database and API via Docker
-  docker compose up -d
-  ```
-- **Database Operations (Prisma):**
-  ```bash
-  npx prisma migrate dev    # Apply migrations
-  npx prisma generate       # Generate Prisma Client
-  npx prisma studio         # Open DB management UI
-  ```
-- **Running the App:**
-  ```bash
-  npm run start:dev        # Development mode with watch
-  npm run start            # Simple start
-  npm run start:prod       # Production mode
-  ```
+## Architecture (C4 Container Diagram)
 
-### Testing and Validation
-- **Unit Tests:** `npm run test`
-- **E2E Tests:** `npm run test:e2e`
-- **Linting:** `npm run lint`
-- **Formatting:** `npm run format`
+See `docs/diagrams/software-arch.mermaid` for the full diagram. Key containers:
 
-## Development Conventions
-- **Modular Design:** Group logic into feature modules (e.g., `auth`, `users`).
-- **Data Integrity:** Use DTOs with `class-validator` for all incoming requests.
-- **ORM:** Use Prisma Client via the `PrismaService` for all database interactions.
-- **Security:**
-    - Never hardcode secrets. Use `@nestjs/config` for environment variables.
-    - Passwords must be hashed using `bcrypt`.
-    - Protect routes using `JwtAuthGuard`.
-- **Email:** Use the `MailService` for all transactional emails, utilizing Handlebars templates in `src/modules/mail/templates/`.
-- **Coding Style:** Adhere to ESLint and Prettier configurations. Standard NestJS/TypeScript conventions apply.
+- **Frontend** (Next.js) -> calls API via REST, streams from Object Storage.
+- **API** (Nest.js) -> business rules, auth, reads/writes DB, uploads to storage, publishes jobs to queue, sends emails.
+- **Video Worker** (FFmpeg) -> consumes jobs from queue, processes videos, updates DB and storage.
+- **Database** (PostgreSQL) -> users, channels, videos, comments, likes.
+- **Object Storage** (S3/MinIO) -> video files and thumbnails.
+- **Message Queue** (TBD) -> video processing job queue.
+- **Email Service** (SMTP) -> account confirmation and password recovery.
 
-## Current Roadmap Status
-The project is currently in **Phase 02 — Cadastro, Login e Gerenciamento de Conta**.
-Key features implemented/in progress:
-- User signup/login with JWT.
-- Email confirmation flow.
-- Automatic channel creation on user registration.
-- Password recovery flow.
+## Working Principles
+
+- **Single Responsibility:** each module, service, and function should have a clear, focused responsibility.
+- **Type Safety:** Strict TypeScript usage across all layers.
+- **Testing:** Strong emphasis on pyramid testing at all levels ro ensure reliability and maintainability.
+- **Code Quality:** Use ESLint and Prettier for consistent code style. Code reviews should focus on readability, maintainability, and adherence to best practices.
+- **Documentation:** Comprehensive docs for architecture, setup, and troubleshooting in `docs/`.
+
+## Git Conventions
+
+- **Main branch:** `main` – never commit directly to it.
+- **Branches:** `feature/*`, `bugfix/*`, `hotfix/*`, `docs/*`
+- **Commits:** short, descriptive messages focused on the "why" of the change.
+- **Workflow:** Git Flow conventions. Two long-lived branches:
+  - `main` – stable, production-ready code.
+  - `dev` – integration branch; all feature/bugfix/hotfix branches start from `dev` and merge back into `dev`.
+  - When `dev` is stable, it is merged into `main`.
+
+## Testing Policy
+
+Every change must be tested. During development, run only the tests related to the modified code. Before finishing, always run the full test suite to ensure nothing is broken.
+
+## Scope Limits
+
+- Work on **one feature, fix, or refactoring at a time** – do not mix scopes.
+- Do not include cosmetic changes (formatting, renaming) alongside functional changes.
+- If something out of scope comes up during work, note it as a separate task instead of acting on it.
+- Focus on the defined scope for each task to ensure clarity and maintainability of the codebase.
+- If you indentifyy a necessary change that is out of scope, create a new issue or task for it instead of including it in the current work.
