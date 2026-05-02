@@ -5,8 +5,5 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  },
-  "moduleNameMapper": {
-    "^@nestjs-modules/mailer/dist/adapters/handlebars.adapter$": "<rootDir>/../node_modules/@nestjs-modules/mailer/dist/adapters/handlebars.adapter.js"
   }
 }
