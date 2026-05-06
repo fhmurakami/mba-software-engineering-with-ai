@@ -55,3 +55,26 @@ Every change must be tested. During development, run only the tests related to t
 - If something out of scope comes up during work, note it as a separate task instead of acting on it.
 - Focus on the defined scope for each task to ensure clarity and maintainability of the codebase.
 - If you indentifyy a necessary change that is out of scope, create a new issue or task for it instead of including it in the current work.
+
+## Agent Skill Usage
+
+When working on any task (planning, implementing, debugging, refactoring, reviewing, etc.), decompose the request into its underlying subtasks and concerns, then identify which available skills match any of them and activate those skills.
+
+## Library Documentation Lookup
+
+Before implementing any feature, you MUST use the **context7** MCP tool to look up the relevant library APIs and official documentation.
+
+Always:
+
+- Check the installed library version in the project manifest
+- Retrieve the corresponding documentation using context7
+- Cross-reference APIs to avoid deprecated or incompatible patterns
+- Follow the official documentation over training data
+
+Skip documentation lookup only for trivial operations such as:
+
+- Variable declarations
+- Basic control flow
+- Simple CRIUD using established project patterns
+
+If a library is involved and there is uncertainty, documentation lookup is mandatory. If the documentation returned does not match the installed version, flag the discrepancy before proceeding.
